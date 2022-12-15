@@ -1,0 +1,43 @@
+name: "Setup nspire Tools"
+description: "Setup Luna, Sol and nspire-merge"
+
+runs:
+  using: "composite"
+  steps:
+  
+    - name: "Create folders"
+      run: |
+        mkdir -vp "$HOME/bin"
+        mkdir -vp "$HOME/nspire-tools"
+        echo "$HOME/bin" >> $GITHUB_PATH
+
+    - name: "Install nspire-merge"
+      run: |
+        git clone "https://github.com/alexcoder04/nspire-merge" "$HOME/nspire-tools/nspire-merge"
+        cd ~/nspire-merge
+        install -Dm755 nspire-merge ~/bin/nspire-merge
+        pip install Pillow
+
+    - name: "Setup Go environment"
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.18
+
+    - name: "Install Sol"
+      run: |
+        git clone "https://github.com/alexcoder04/sol-tools" "$HOME/nspire-tools/sol-tools"
+        cd "$HOME/sol-tools"
+        make linux
+        install -Dm755 build/sol "$HOME/bin/sol"
+
+    - name: "Install Luna"
+      run: |
+        git clone "https://github.com/ndless-nspire/Luna" "$HOME/nspire-tools/Luna"
+        cd "$HOME/Luna"
+        make
+        install -Dm755 luna "$HOME/bin/luna"
+        
+    - name: "Clean up"
+      run: |
+        echo "Deleting temporary tools folder"
+        rm -rf "$HOME/nspire-tools"
